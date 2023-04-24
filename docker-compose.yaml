@@ -1,0 +1,30 @@
+version: '2.0'
+services:
+  frontend:
+    container_name: KK-front-react
+    image: node:latest
+    volumes:
+      - /etc/letsencrypt/:/etc/letsencrypt/
+      - ./app/build:/app/build
+    expose:
+      - '3000'
+    entrypoint:
+      [
+        sh,
+        -c,
+        'cd /app && npm i serve -g && serve -s build',
+      ]
+  nginx:
+    container_name: KK-front-nginx
+    image: nginx:alpine
+    tty: true
+    depends_on:
+      - frontend
+    volumes:
+      - /etc/letsencrypt/:/etc/letsencrypt/
+      - ./templates:/etc/nginx/templates
+      - ./docker/config/conf.d:/etc/nginx/conf.d/
+    ports:
+      - 3040:3040
+    links:
+      - frontend
